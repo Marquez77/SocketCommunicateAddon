@@ -1,4 +1,4 @@
-package me.marquez.sca.expr;
+package me.marquez.sca.expressions;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;

@@ -1,9 +1,8 @@
-package me.marquez.sca.expr;
+package me.marquez.sca.expressions;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
 import me.marquez.sca.events.DataReceiveEvent;
 import me.marquez.socket.udp.UDPEchoServer;
@@ -16,7 +15,7 @@ import java.io.IOException;
 
 public class ExprOpenSocketServer extends SimpleExpression<UDPEchoServer> {
 
-    private Expression<Integer> port;
+    private Expression<Number> port;
     private Expression<Boolean> debug;
 
     @Override
@@ -26,7 +25,7 @@ public class ExprOpenSocketServer extends SimpleExpression<UDPEchoServer> {
 
     @Override
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        this.port = (Expression<Integer>) expressions[0];
+        this.port = (Expression<Number>) expressions[0];
         if(expressions.length > 1) {
             this.debug = (Expression<Boolean>) expressions[1];
         }
@@ -35,17 +34,17 @@ public class ExprOpenSocketServer extends SimpleExpression<UDPEchoServer> {
 
     @Override
     protected @Nullable UDPEchoServer[] get(Event event) {
-        Integer port = this.port.getSingle(event);
+        Number port = this.port.getSingle(event);
         boolean debug = this.debug != null ? this.debug.getSingle(event) : false;
         if (port != null) {
             UDPEchoServer server = null;
             try {
-                final UDPEchoServer finalServer = server = new UDPEchoServer(port, LoggerFactory.getLogger("Skript-UDP-Server"));
+                final UDPEchoServer finalServer = server = new UDPEchoServer(port.intValue(), LoggerFactory.getLogger("Skript-UDP-Server"));
                 server.registerHandler((inetSocketAddress, udpEchoSend, udpEchoResponse) -> {
                     DataReceiveEvent e = new DataReceiveEvent(finalServer, inetSocketAddress, udpEchoSend, udpEchoResponse);
-                    System.out.println("TEST callEvent");
                     Bukkit.getPluginManager().callEvent(e);
                 });
+                server.setDebug(debug);
                 server.start();
             } catch (IOException e) {
                 e.printStackTrace();

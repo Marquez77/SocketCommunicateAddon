@@ -19,10 +19,9 @@ public class EvtReceiveData extends SimpleEvent {
 
     @Override
     public boolean check(Event event) {
-        System.out.println("TEST check");
         String name = this.name.getSingle();
         if(event instanceof DataReceiveEvent e) {
-            if(name.equalsIgnoreCase(e.getData().nextString())) {
+            if(name.equalsIgnoreCase(e.getData().clone().nextString())) {
                 return true;
             }
         }

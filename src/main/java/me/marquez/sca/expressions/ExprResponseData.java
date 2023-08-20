@@ -1,4 +1,4 @@
-package me.marquez.sca.expr;
+package me.marquez.sca.expressions;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.lang.Expression;
@@ -7,7 +7,6 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import me.marquez.sca.events.DataReceiveEvent;
 import me.marquez.socket.udp.entity.UDPEchoResponse;
-import me.marquez.socket.udp.entity.UDPEchoSend;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 

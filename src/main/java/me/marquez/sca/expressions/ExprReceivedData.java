@@ -1,4 +1,4 @@
-package me.marquez.sca.expr;
+package me.marquez.sca.expressions;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
@@ -13,7 +13,9 @@ public class ExprReceivedData extends SimpleExpression<UDPEchoSend> {
     @Override
     protected @Nullable UDPEchoSend[] get(Event event) {
         if(event instanceof DataReceiveEvent e) {
-            return new UDPEchoSend[] { e.getData() };
+            UDPEchoSend data = e.getData().clone();
+            data.nextString();
+            return new UDPEchoSend[] { data };
         }
         return null;
     }
