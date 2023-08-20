@@ -4,6 +4,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import me.marquez.sca.SocketCommunicateAddon;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -17,12 +18,14 @@ public class EffConnectServer extends Effect {
     protected void execute(Event event) {
         Player[] players = this.player.getArray(event);
         String server = this.server.getSingle(event);
-
+        for (Player p : players) {
+            SocketCommunicateAddon.getInstance().connectPlayer(p, server);
+        }
     }
 
     @Override
     public String toString(@Nullable Event event, boolean b) {
-        return null;
+        return this.getClass().getName();
     }
 
     @Override

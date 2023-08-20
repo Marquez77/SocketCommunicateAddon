@@ -14,9 +14,10 @@ import org.jetbrains.annotations.NotNull;
 public class ServerPostConnectEvent extends Event implements ServerConnectEvent{
     private static final HandlerList handlers = new HandlerList();
 
+    private final OfflinePlayer offlinePlayer;
     private final String originServer;
     private final String targetServer;
-    private final OfflinePlayer offlinePlayer;
+
     @Setter
     private boolean cancelled;
 
