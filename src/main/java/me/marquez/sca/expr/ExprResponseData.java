@@ -1,35 +1,61 @@
 package me.marquez.sca.expr;
 
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import me.marquez.sca.events.DataReceiveEvent;
+import me.marquez.socket.udp.entity.UDPEchoResponse;
+import me.marquez.socket.udp.entity.UDPEchoSend;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-public class ExprResponseData extends SimpleExpression<Object> {
+public class ExprResponseData extends SimpleExpression<UDPEchoResponse> {
     @Override
-    protected @Nullable Object[] get(Event event) {
-        return new Object[0];
+    protected @Nullable UDPEchoResponse[] get(Event event) {
+        if(event instanceof DataReceiveEvent e) {
+            return new UDPEchoResponse[] { e.getResponse() };
+        }
+        return null;
     }
 
     @Override
     public boolean isSingle() {
-        return false;
+        return true;
     }
 
     @Override
-    public Class<?> getReturnType() {
-        return null;
+    public Class<? extends UDPEchoResponse> getReturnType() {
+        return UDPEchoResponse.class;
     }
 
     @Override
     public String toString(@Nullable Event event, boolean b) {
-        return null;
+        return this.getClass().getName();
     }
 
     @Override
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        return false;
+        return true;
+    }
+
+    @Override
+    public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
+        switch(mode) {
+            case ADD -> {
+                return new Class<?>[] { Object.class } ;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+        if(event instanceof DataReceiveEvent e) {
+            if (mode == Changer.ChangeMode.ADD) {
+                e.getResponse().append(delta[0]);
+            }
+        }
     }
 }

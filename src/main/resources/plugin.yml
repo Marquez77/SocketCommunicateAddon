@@ -1,0 +1,6 @@
+name: SocketCommunicateAddon
+main: me.marquez.sca.SocketCommunicateAddon
+version: ${version}
+api-version: 1.18
+author: DevMarquez
+depend: [Skript]
