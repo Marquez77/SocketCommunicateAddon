@@ -39,7 +39,7 @@ public class SocketCommunicateAddon extends JavaPlugin {
 
         registerSkriptAddons();
 
-        getServer().getMessenger().registerOutgoingPluginChannel(this, "sca:channel");
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
         getLogger().info("Enabled SocketCommunicateAddon v" + getDescription().getVersion());
         getLogger().info("ServerName=" + serverName);
@@ -59,7 +59,7 @@ public class SocketCommunicateAddon extends JavaPlugin {
     private void registerSkriptAddons() {
         Skript.registerAddon(this);
 
-        Skript.registerEffect(EffSendData.class, "send data named %string% with %objects% to %strings% from %object%");
+        Skript.registerEffect(EffSendData.class, "send data named %string% with %objects% to %strings% from %object% [and receive in %-objects% [or timeout %integer%]]");
         Skript.registerEffect(EffCloseSocketServer.class, "close socket server of %object%");
         Skript.registerEffect(EffConnectServer.class, "connect server %players% to %string%");
 
@@ -70,7 +70,6 @@ public class SocketCommunicateAddon extends JavaPlugin {
         Skript.registerEvent("server connect failed", SimpleEvent.class, ServerConnectFailEvent.class, "server connect failed");
 
         Skript.registerExpression(ExprOpenSocketServer.class, UDPEchoServer.class, ExpressionType.SIMPLE, "open socket server with port %number%[ on debug %boolean%]");
-        Skript.registerExpression(ExprSendDataAndReceive.class, UDPEchoResponse.class, ExpressionType.SIMPLE, "send data named %string% with %objects% to %string% from %object% and receive data");
         Skript.registerExpression(ExprDataSender.class, String.class, ExpressionType.SIMPLE, "data sender");
         Skript.registerExpression(ExprReceivedData.class, UDPEchoSend.class, ExpressionType.SIMPLE, "received data");
         Skript.registerExpression(ExprResponseData.class, UDPEchoResponse.class, ExpressionType.SIMPLE, "response data");
