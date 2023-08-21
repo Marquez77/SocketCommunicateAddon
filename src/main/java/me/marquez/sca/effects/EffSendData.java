@@ -88,11 +88,9 @@ public class EffSendData extends Delay {
                 if (isSync) {
                     Skript.warning("send data and receive effect was attempted on the main thread!");
                 }
-                System.out.println("start: " + Variables.getVariable("test", event, true));
                 final Object localVars = Variables.removeLocals(event);
                 CompletableFuture.supplyAsync(() -> {
                             executeSend(server, address, send, event, localVars);
-                            System.out.println("result: " + Variables.getVariable("test", event, true));
                             return null;
                         }, threadPool)
                 .whenComplete((o, throwable) -> {
