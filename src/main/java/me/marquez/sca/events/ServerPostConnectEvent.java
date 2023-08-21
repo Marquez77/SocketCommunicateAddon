@@ -18,9 +18,6 @@ public class ServerPostConnectEvent extends Event implements ServerConnectEvent{
     private final String originServer;
     private final String targetServer;
 
-    @Setter
-    private boolean cancelled;
-
     @NotNull
     @Override
     public HandlerList getHandlers() {

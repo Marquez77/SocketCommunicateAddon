@@ -17,10 +17,12 @@ import me.marquez.socket.udp.entity.UDPEchoSend;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class SocketCommunicateAddon extends JavaPlugin {
 
@@ -59,7 +61,7 @@ public class SocketCommunicateAddon extends JavaPlugin {
     private void registerSkriptAddons() {
         Skript.registerAddon(this);
 
-        Skript.registerEffect(EffSendData.class, "send data named %string% with %objects% to %strings% from %object% [and receive in %-objects% [or timeout %integer%]]");
+        Skript.registerEffect(EffSendData.class, "[(1¦synchronously)] send data named %string% with %objects% to %strings% from %object% [and receive in %-objects% [or timeout %integer%]]");
         Skript.registerEffect(EffCloseSocketServer.class, "close socket server of %object%");
         Skript.registerEffect(EffConnectServer.class, "connect server %players% to %string%");
 
@@ -85,6 +87,10 @@ public class SocketCommunicateAddon extends JavaPlugin {
     }
 
     public void connectPlayer(Player player, String server) {
+        if(Bukkit.isPrimaryThread()) {
+            Executors.newCachedThreadPool().submit(() -> connectPlayer(player, server));
+            return;
+        }
         ServerPreConnectEvent preConnectEvent = new ServerPreConnectEvent(player, getCurrentServerName(), server);
         getServer().getPluginManager().callEvent(preConnectEvent);
         if(preConnectEvent.isCancelled() || !preConnectEvent.getCancelReasons().isEmpty()) {
@@ -93,6 +99,7 @@ public class SocketCommunicateAddon extends JavaPlugin {
         }
 
         ServerConnectingEvent connectingEvent = new ServerConnectingEvent(player, getCurrentServerName(), server);
+        getServer().getPluginManager().callEvent(connectingEvent);
         if(connectingEvent.isCancelled()) {
             failConnect(player, server, List.of("connecting event cancelled"));
             return;

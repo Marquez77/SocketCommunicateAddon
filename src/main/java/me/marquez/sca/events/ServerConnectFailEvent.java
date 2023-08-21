@@ -9,9 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class ServerConnectFailEvent extends AbstractServerConnectEvent {
-    static {
-        handlers = new HandlerList();
-    }
 
     @Getter
     private final ImmutableList<String> failReasons;

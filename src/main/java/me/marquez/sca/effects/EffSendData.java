@@ -1,5 +1,6 @@
 package me.marquez.sca.effects;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.variables.Variables;
@@ -34,6 +35,7 @@ public class EffSendData extends Delay {
     private Expression<String> target;
     private Expression<UDPEchoServer> server;
 
+    private boolean isSync;
     private VariableString var;
     private boolean isLocal;
     private boolean isList;
@@ -64,6 +66,10 @@ public class EffSendData extends Delay {
         String name = this.name.getSingle(event);
         Object[] data = this.data.getArray(event);
         UDPEchoServer server = this.server.getSingle(event);
+        if(server == null) {
+            Skript.error("UDP socket server is null!");
+            return;
+        }
         UDPEchoSend send = new UDPEchoSend(name);
         for (Object d : data) {
             if(d instanceof ItemStack item) {
@@ -74,23 +80,37 @@ public class EffSendData extends Delay {
         }
         String[] targetArray = this.target.getArray(event);
         if(targetArray.length == 1 && var != null) {
-            CompletableFuture.supplyAsync(() -> {
-                server.sendDataAndReceive(getAddress(targetArray[0]), send)
-                        .whenComplete((udpEchoResponse, throwable) -> {
-                            if (throwable == null)
-                                Variables.setVariable(var.toString(event).toLowerCase(Locale.ENGLISH), MinecraftEchoData.of(udpEchoResponse), event, isLocal);
-                        }).orTimeout(timeout, TimeUnit.MILLISECONDS).join();
-                return null;
-            }, threadPool)
-                    .whenComplete((o, throwable) -> {
-                        continueScriptExecution(event);
-                    });
+            boolean isMainThread = Bukkit.isPrimaryThread();
+            String address = targetArray[0];
+            if(isSync && !isMainThread) {
+                executeSend(server, address, send, event);
+                continueScriptExecution(event);
+            }else {
+                if (isSync) {
+                    Skript.warning("send data and receive effect was attempted on the main thread!");
+                }
+                CompletableFuture.supplyAsync(() -> {
+                            executeSend(server, address, send, event);
+                            return null;
+                        }, threadPool)
+                .whenComplete((o, throwable) -> {
+                    continueScriptExecution(event);
+                });
+            }
         }else {
             for (String target : targetArray) {
                 server.sendData(getAddress(target), send);
             }
             continueScriptExecution(event);
         }
+    }
+
+    private void executeSend(UDPEchoServer server, String address, UDPEchoSend send, Event event) {
+        server.sendDataAndReceive(getAddress(address), send)
+                .whenComplete((udpEchoResponse, throwable) -> {
+                    if (throwable == null)
+                        Variables.setVariable(var.toString(event).toLowerCase(Locale.ENGLISH), MinecraftEchoData.of(udpEchoResponse), event, isLocal);
+                }).orTimeout(timeout, TimeUnit.MILLISECONDS).join();
     }
 
     @Override
@@ -105,12 +125,13 @@ public class EffSendData extends Delay {
             data = (Expression<Object>) expressions[1];
             target = (Expression<String>) expressions[2];
             server = (Expression<UDPEchoServer>) expressions[3];
+            isSync = parseResult.mark == 1;
             if (expressions.length > 4 && expressions[4] instanceof Variable<?> variable) {
                 var = variable.getName();
                 isLocal = variable.isLocal();
                 isList = variable.isList();
                 if (expressions.length > 5 && expressions[5] instanceof Literal<?> literal) {
-                    timeout = ((Literal<Integer>) literal).getSingle();
+                    if(!literal.isDefault()) timeout = ((Literal<Integer>) literal).getSingle();
                 }
             }
         }catch(Exception e) {
