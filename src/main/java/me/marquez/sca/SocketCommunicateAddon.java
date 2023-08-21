@@ -3,6 +3,7 @@ package me.marquez.sca;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.util.SimpleEvent;
+import ch.njol.skript.registrations.EventValues;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import lombok.Getter;
@@ -20,6 +21,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.List;
@@ -72,6 +74,19 @@ public class SocketCommunicateAddon extends JavaPlugin {
         Skript.registerEvent("server connecting", SimpleEvent.class, ServerConnectingEvent.class, "server connect[ing]");
         Skript.registerEvent("server post-connect", SimpleEvent.class, ServerPostConnectEvent.class, "server post[-]connect");
         Skript.registerEvent("server connect failed", SimpleEvent.class, ServerConnectFailEvent.class, "server connect failed");
+        EventValues.registerEventValue(AbstractServerConnectEvent.class, Player.class, new ch.njol.skript.util.Getter<Player, AbstractServerConnectEvent>() {
+            @Override
+            public @Nullable Player get(AbstractServerConnectEvent e) {
+                return e.getPlayer();
+            }
+        }, 0);
+        EventValues.registerEventValue(ServerPostConnectEvent.class, OfflinePlayer.class, new ch.njol.skript.util.Getter<OfflinePlayer, ServerPostConnectEvent>() {
+            @Override
+            public @Nullable OfflinePlayer get(ServerPostConnectEvent e) {
+                return e.getOfflinePlayer();
+            }
+        }, 0);
+
 
         Skript.registerExpression(ExprOpenSocketServer.class, UDPEchoServer.class, ExpressionType.SIMPLE, "open socket server with port %number%[ on debug %boolean%]");
         Skript.registerExpression(ExprDataSender.class, String.class, ExpressionType.SIMPLE, "data sender");

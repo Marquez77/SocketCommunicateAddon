@@ -81,13 +81,15 @@ public class EffSendData extends Delay {
         if(targetArray.length == 1 && var != null) {
             boolean isMainThread = Bukkit.isPrimaryThread();
             String address = targetArray[0];
-            if(isSync && !isMainThread) {
+            if(isSync) {
+                if (isMainThread) {
+                    Skript.warning("§e===============================================================");
+                    Skript.warning("§csend data and receive effect was attempted on the main thread!");
+                    Skript.warning("§e===============================================================");
+                }
                 executeSend(server, address, send, event, null);
                 continueScriptExecution(event);
             }else {
-                if (isSync) {
-                    Skript.warning("send data and receive effect was attempted on the main thread!");
-                }
                 final Object localVars = Variables.removeLocals(event);
                 CompletableFuture.supplyAsync(() -> {
                             executeSend(server, address, send, event, localVars);
