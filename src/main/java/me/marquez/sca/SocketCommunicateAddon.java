@@ -8,6 +8,7 @@ import com.google.common.io.ByteStreams;
 import lombok.Getter;
 import me.marquez.sca.effects.EffCloseSocketServer;
 import me.marquez.sca.effects.EffConnectServer;
+import me.marquez.sca.effects.EffKickPlayerOnProxy;
 import me.marquez.sca.events.*;
 import me.marquez.sca.expressions.*;
 import me.marquez.sca.effects.EffSendData;
@@ -64,6 +65,7 @@ public class SocketCommunicateAddon extends JavaPlugin {
         Skript.registerEffect(EffSendData.class, "[(1¦synchronously)] send data named %string% with %objects% to %strings% from %object% [and receive in %-objects% [or timeout %integer%]]");
         Skript.registerEffect(EffCloseSocketServer.class, "close socket server of %object%");
         Skript.registerEffect(EffConnectServer.class, "connect server %players% to %string%");
+        Skript.registerEffect(EffKickPlayerOnProxy.class, "kick %player% on proxy due to %string%");
 
         Skript.registerEvent("data receive", EvtReceiveData.class, DataReceiveEvent.class,"receive data named %string%");
         Skript.registerEvent("server pre-connect", SimpleEvent.class, ServerPreConnectEvent.class, "server pre[-]connect");
