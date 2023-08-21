@@ -16,7 +16,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -83,18 +82,21 @@ public class EffSendData extends Delay {
             boolean isMainThread = Bukkit.isPrimaryThread();
             String address = targetArray[0];
             if(isSync && !isMainThread) {
-                executeSend(server, address, send, event);
+                executeSend(server, address, send, event, null);
                 continueScriptExecution(event);
             }else {
                 if (isSync) {
                     Skript.warning("send data and receive effect was attempted on the main thread!");
                 }
+                System.out.println("start: " + Variables.getVariable("test", event, true));
+                final Object localVars = Variables.removeLocals(event);
                 CompletableFuture.supplyAsync(() -> {
-                            executeSend(server, address, send, event);
+                            executeSend(server, address, send, event, localVars);
+                            System.out.println("result: " + Variables.getVariable("test", event, true));
                             return null;
                         }, threadPool)
                 .whenComplete((o, throwable) -> {
-                    continueScriptExecution(event);
+                    Bukkit.getScheduler().runTask(SocketCommunicateAddon.getInstance(), ()->continueScriptExecution(event));
                 });
             }
         }else {
@@ -105,11 +107,13 @@ public class EffSendData extends Delay {
         }
     }
 
-    private void executeSend(UDPEchoServer server, String address, UDPEchoSend send, Event event) {
+    private void executeSend(UDPEchoServer server, String address, UDPEchoSend send, Event event, Object localVars) {
         server.sendDataAndReceive(getAddress(address), send)
                 .whenComplete((udpEchoResponse, throwable) -> {
-                    if (throwable == null)
+                    if (throwable == null) {
+                        if(localVars != null) Variables.setLocalVariables(event, localVars);
                         Variables.setVariable(var.toString(event).toLowerCase(Locale.ENGLISH), MinecraftEchoData.of(udpEchoResponse), event, isLocal);
+                    }
                 }).orTimeout(timeout, TimeUnit.MILLISECONDS).join();
     }
 
