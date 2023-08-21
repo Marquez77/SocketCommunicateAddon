@@ -4,11 +4,14 @@ import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
+import me.marquez.sca.CustomDataAppender;
+import me.marquez.sca.MinecraftEchoData;
 import me.marquez.sca.SocketCommunicateAddon;
 import me.marquez.socket.udp.UDPEchoServer;
 import me.marquez.socket.udp.entity.UDPEchoSend;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
@@ -62,14 +65,20 @@ public class EffSendData extends Delay {
         Object[] data = this.data.getArray(event);
         UDPEchoServer server = this.server.getSingle(event);
         UDPEchoSend send = new UDPEchoSend(name);
-        for (Object d : data) send.append(d);
+        for (Object d : data) {
+            if(d instanceof ItemStack item) {
+                CustomDataAppender.INSTANCE.appendItem(send, item);
+            }else {
+                send.append(d);
+            }
+        }
         String[] targetArray = this.target.getArray(event);
         if(targetArray.length == 1 && var != null) {
             CompletableFuture.supplyAsync(() -> {
                 server.sendDataAndReceive(getAddress(targetArray[0]), send)
                         .whenComplete((udpEchoResponse, throwable) -> {
                             if (throwable == null)
-                                Variables.setVariable(var.toString(event).toLowerCase(Locale.ENGLISH), udpEchoResponse, event, isLocal);
+                                Variables.setVariable(var.toString(event).toLowerCase(Locale.ENGLISH), MinecraftEchoData.of(udpEchoResponse), event, isLocal);
                         }).orTimeout(timeout, TimeUnit.MILLISECONDS).join();
                 return null;
             }, threadPool)

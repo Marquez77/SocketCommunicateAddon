@@ -71,7 +71,7 @@ public class SocketCommunicateAddon extends JavaPlugin {
 
         Skript.registerExpression(ExprOpenSocketServer.class, UDPEchoServer.class, ExpressionType.SIMPLE, "open socket server with port %number%[ on debug %boolean%]");
         Skript.registerExpression(ExprDataSender.class, String.class, ExpressionType.SIMPLE, "data sender");
-        Skript.registerExpression(ExprReceivedData.class, UDPEchoSend.class, ExpressionType.SIMPLE, "received data");
+        Skript.registerExpression(ExprReceivedData.class, MinecraftEchoData.class, ExpressionType.SIMPLE, "received data");
         Skript.registerExpression(ExprResponseData.class, UDPEchoResponse.class, ExpressionType.SIMPLE, "response data");
         Skript.registerExpression(ExprOriginServer.class, String.class, ExpressionType.SIMPLE, "origin(-| )server");
         Skript.registerExpression(ExprTargetServer.class, String.class, ExpressionType.SIMPLE, "target(-| )server");

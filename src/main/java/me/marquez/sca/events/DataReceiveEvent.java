@@ -3,6 +3,7 @@ package me.marquez.sca.events;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import me.marquez.sca.MinecraftEchoData;
 import me.marquez.socket.udp.UDPEchoServer;
 import me.marquez.socket.udp.entity.UDPEchoResponse;
 import me.marquez.socket.udp.entity.UDPEchoSend;
@@ -30,7 +31,7 @@ public class DataReceiveEvent extends Event {
     @NonNull
     private final InetSocketAddress sender;
     @NonNull
-    private final UDPEchoSend data;
+    private final MinecraftEchoData data;
     @NonNull
     private final UDPEchoResponse response;
 
@@ -38,7 +39,7 @@ public class DataReceiveEvent extends Event {
         super(true);
         this.server = server;
         this.sender = sender;
-        this.data = data;
+        this.data = MinecraftEchoData.of(data);
         this.response = response;
     }
 }

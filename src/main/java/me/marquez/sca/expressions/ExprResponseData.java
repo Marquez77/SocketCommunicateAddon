@@ -5,9 +5,11 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import me.marquez.sca.CustomDataAppender;
 import me.marquez.sca.events.DataReceiveEvent;
 import me.marquez.socket.udp.entity.UDPEchoResponse;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public class ExprResponseData extends SimpleExpression<UDPEchoResponse> {
@@ -53,7 +55,11 @@ public class ExprResponseData extends SimpleExpression<UDPEchoResponse> {
     public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
         if(event instanceof DataReceiveEvent e) {
             if (mode == Changer.ChangeMode.ADD) {
-                e.getResponse().append(delta[0]);
+                if(delta[0] instanceof ItemStack item) {
+                    CustomDataAppender.INSTANCE.appendItem(e.getResponse(), item);
+                }else {
+                    e.getResponse().append(delta[0]);
+                }
             }
         }
     }
