@@ -7,8 +7,10 @@ import ch.njol.util.Kleenean;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import me.marquez.sca.SocketCommunicateAddon;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class EffKickPlayerOnProxy extends Effect {
@@ -20,6 +22,10 @@ public class EffKickPlayerOnProxy extends Effect {
     protected void execute(Event event) {
         Player player = this.player.getSingle(event);
         String reason = this.reason.getSingle(event);
+
+        PlayerQuitEvent quitEvent = new PlayerQuitEvent(player, "");
+        Bukkit.getPluginManager().callEvent(quitEvent);
+
         ByteArrayDataOutput output = ByteStreams.newDataOutput();
         output.writeUTF("KickPlayer");
         output.writeUTF(player.getName());

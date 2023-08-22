@@ -41,8 +41,13 @@ public class EffSendData extends Delay {
 
     private long timeout = 30*1000L;
 
+    @Nullable
     private InetSocketAddress getAddress(String str) {
         String[] target = str.split(":");
+        if(target.length < 2) {
+            Skript.error("Invalid server address: " + str);
+            return null;
+        }
         return new InetSocketAddress(target[0], Integer.parseInt(target[1]));
     }
 
@@ -101,14 +106,18 @@ public class EffSendData extends Delay {
             }
         }else {
             for (String target : targetArray) {
-                server.sendData(getAddress(target), send);
+                var socketAddress = getAddress(target);
+                if(socketAddress == null) continue;
+                server.sendData(socketAddress, send);
             }
             continueScriptExecution(event);
         }
     }
 
     private void executeSend(UDPEchoServer server, String address, UDPEchoSend send, Event event, Object localVars) {
-        server.sendDataAndReceive(getAddress(address), send)
+        var socketAddress = getAddress(address);
+        if(socketAddress == null) return;
+        server.sendDataAndReceive(socketAddress, send)
                 .whenComplete((udpEchoResponse, throwable) -> {
                     if (throwable == null) {
                         if(localVars != null) Variables.setLocalVariables(event, localVars);

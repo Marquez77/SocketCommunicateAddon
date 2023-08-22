@@ -10,13 +10,19 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-@RequiredArgsConstructor
 public class ServerPostConnectEvent extends Event implements ServerConnectEvent{
     private static final HandlerList handlers = new HandlerList();
 
     private final OfflinePlayer offlinePlayer;
     private final String originServer;
     private final String targetServer;
+
+    public ServerPostConnectEvent(OfflinePlayer player, String originServer, String targetServer) {
+        super(true);
+        this.offlinePlayer = player;
+        this.originServer = originServer;
+        this.targetServer = targetServer;
+    }
 
     @NotNull
     @Override

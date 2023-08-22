@@ -19,13 +19,17 @@ import me.marquez.socket.udp.entity.UDPEchoSend;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class SocketCommunicateAddon extends JavaPlugin {
 
@@ -74,6 +78,7 @@ public class SocketCommunicateAddon extends JavaPlugin {
         Skript.registerEvent("server connecting", SimpleEvent.class, ServerConnectingEvent.class, "server connect[ing]");
         Skript.registerEvent("server post-connect", SimpleEvent.class, ServerPostConnectEvent.class, "server post[-]connect");
         Skript.registerEvent("server connect failed", SimpleEvent.class, ServerConnectFailEvent.class, "server connect failed");
+        Skript.registerEvent("server disconnect", SimpleEvent.class, ServerDisconnectEvent.class, "server disconnect");
         EventValues.registerEventValue(AbstractServerConnectEvent.class, Player.class, new ch.njol.skript.util.Getter<Player, AbstractServerConnectEvent>() {
             @Override
             public @Nullable Player get(AbstractServerConnectEvent e) {
@@ -126,9 +131,33 @@ public class SocketCommunicateAddon extends JavaPlugin {
         output.writeUTF(server);
         player.sendPluginMessage(this, "BungeeCord", output.toByteArray());
 
-        ServerPostConnectEvent postConnectEvent = new ServerPostConnectEvent(getServer().getOfflinePlayer(player.getUniqueId()), getCurrentServerName(), server);
-        getServer().getPluginManager().callEvent(postConnectEvent);
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        connectingPlayers.put(player, future);
+        future.whenComplete((unused, throwable) -> {
+            if(throwable != null) {
+                connectingPlayers.remove(player);
+                failConnect(player, server, List.of("BungeeCord request timeout"));
+                return;
+            }
+            ServerPostConnectEvent postConnectEvent = new ServerPostConnectEvent(getServer().getOfflinePlayer(player.getUniqueId()), getCurrentServerName(), server);
+            getServer().getPluginManager().callEvent(postConnectEvent);
+        }).orTimeout(5000, TimeUnit.MILLISECONDS);
     }
+
+    private final Map<Player, CompletableFuture<Void>> connectingPlayers = new HashMap<>();
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        Player player = e.getPlayer();
+        if(connectingPlayers.containsKey(player)) {
+            connectingPlayers.get(player).complete(null);
+            connectingPlayers.remove(player);
+        }else {
+            ServerDisconnectEvent event = new ServerDisconnectEvent(player);
+            Bukkit.getPluginManager().callEvent(event);
+        }
+    }
+
+
 
     public void failConnect(Player player, String server, List<String> failReasons) {
         ServerConnectFailEvent connectFailEvent = new ServerConnectFailEvent(player, getCurrentServerName(), server, failReasons);
