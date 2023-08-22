@@ -20,6 +20,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class SocketCommunicateAddon extends JavaPlugin {
+public class SocketCommunicateAddon extends JavaPlugin implements Listener {
 
     @Getter
     private static SocketCommunicateAddon instance;
@@ -48,6 +49,7 @@ public class SocketCommunicateAddon extends JavaPlugin {
 
         registerSkriptAddons();
 
+        getServer().getPluginManager().registerEvents(this, this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
         getLogger().info("Enabled SocketCommunicateAddon v" + getDescription().getVersion());
@@ -133,15 +135,15 @@ public class SocketCommunicateAddon extends JavaPlugin {
 
         CompletableFuture<Void> future = new CompletableFuture<>();
         connectingPlayers.put(player, future);
-        future.whenComplete((unused, throwable) -> {
-            if(throwable != null) {
-                connectingPlayers.remove(player);
-                failConnect(player, server, List.of("BungeeCord request timeout"));
-                return;
-            }
-            ServerPostConnectEvent postConnectEvent = new ServerPostConnectEvent(getServer().getOfflinePlayer(player.getUniqueId()), getCurrentServerName(), server);
+        final UUID uuid = player.getUniqueId();
+        future.whenCompleteAsync((unused, throwable) -> {
+            ServerPostConnectEvent postConnectEvent = new ServerPostConnectEvent(getServer().getOfflinePlayer(uuid), getCurrentServerName(), server);
             getServer().getPluginManager().callEvent(postConnectEvent);
-        }).orTimeout(5000, TimeUnit.MILLISECONDS);
+        }).orTimeout(30*1000, TimeUnit.MILLISECONDS).exceptionally(throwable -> {
+            connectingPlayers.remove(player);
+            failConnect(player, server, List.of("BungeeCord request timeout"));
+            return null;
+        });
     }
 
     private final Map<Player, CompletableFuture<Void>> connectingPlayers = new HashMap<>();

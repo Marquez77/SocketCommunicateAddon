@@ -24,7 +24,8 @@ public class EffKickPlayerOnProxy extends Effect {
         String reason = this.reason.getSingle(event);
 
         PlayerQuitEvent quitEvent = new PlayerQuitEvent(player, "");
-        Bukkit.getPluginManager().callEvent(quitEvent);
+        if(Bukkit.isPrimaryThread()) Bukkit.getPluginManager().callEvent(quitEvent);
+        else Bukkit.getScheduler().runTask(SocketCommunicateAddon.getInstance(), () -> Bukkit.getPluginManager().callEvent(quitEvent));
 
         ByteArrayDataOutput output = ByteStreams.newDataOutput();
         output.writeUTF("KickPlayer");
