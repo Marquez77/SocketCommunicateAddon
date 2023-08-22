@@ -123,7 +123,10 @@ public class EffSendData extends Delay {
                         if(localVars != null) Variables.setLocalVariables(event, localVars);
                         Variables.setVariable(var.toString(event).toLowerCase(Locale.ENGLISH), MinecraftEchoData.of(udpEchoResponse), event, isLocal);
                     }
-                }).orTimeout(timeout, TimeUnit.MILLISECONDS).join();
+                }).orTimeout(timeout, TimeUnit.MILLISECONDS)
+                .exceptionally(throwable -> {
+                    return null;
+                }).join();
     }
 
     @Override
