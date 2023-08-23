@@ -125,7 +125,7 @@ public class EffSendData extends Delay {
                     }
                 }).orTimeout(timeout, TimeUnit.MILLISECONDS)
                 .exceptionally(throwable -> {
-                    return null;
+                    throw new RuntimeException(throwable);
                 }).join();
     }
 
