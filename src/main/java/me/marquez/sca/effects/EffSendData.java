@@ -125,6 +125,8 @@ public class EffSendData extends Delay {
                     }
                 }).orTimeout(timeout, TimeUnit.MILLISECONDS)
                 .exceptionally(throwable -> {
+                    if(localVars != null) Variables.setLocalVariables(event, localVars);
+                    Skript.error(throwable.getMessage());
                     throw new RuntimeException(throwable);
                 }).join();
     }
