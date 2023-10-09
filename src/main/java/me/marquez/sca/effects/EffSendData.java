@@ -117,7 +117,7 @@ public class EffSendData extends Delay {
     private void executeSend(UDPEchoServer server, String address, UDPEchoSend send, Event event, Object localVars) {
         var socketAddress = getAddress(address);
         if(socketAddress == null) return;
-        server.sendDataAndReceive(socketAddress, send)
+        server.sendDataAndReceive(socketAddress, send, true)
                 .whenComplete((udpEchoResponse, throwable) -> {
                     if (throwable == null) {
                         if(localVars != null) Variables.setLocalVariables(event, localVars);
@@ -125,6 +125,8 @@ public class EffSendData extends Delay {
                     }
                 }).orTimeout(timeout, TimeUnit.MILLISECONDS)
                 .exceptionally(throwable -> {
+                    if(localVars != null) Variables.setLocalVariables(event, localVars);
+                    Skript.error(throwable.getMessage());
                     throw new RuntimeException(throwable);
                 }).join();
     }
