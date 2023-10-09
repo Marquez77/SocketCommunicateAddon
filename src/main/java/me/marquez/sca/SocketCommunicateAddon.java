@@ -117,6 +117,9 @@ public class SocketCommunicateAddon extends JavaPlugin implements Listener {
             Executors.newCachedThreadPool().submit(() -> connectPlayer(player, server));
             return;
         }
+
+        // TODO: 2023-10-09 pinging before connect server
+
         ServerPreConnectEvent preConnectEvent = new ServerPreConnectEvent(player, getCurrentServerName(), server);
         getServer().getPluginManager().callEvent(preConnectEvent);
         if(preConnectEvent.isCancelled() || !preConnectEvent.getCancelReasons().isEmpty()) {
