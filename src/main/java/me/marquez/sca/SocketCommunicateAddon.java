@@ -42,6 +42,8 @@ public class SocketCommunicateAddon extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         instance = this;
+
+        // TODO: 2023-10-10 whether on config
         try {
             loadServerName();
         } catch (IOException e) {

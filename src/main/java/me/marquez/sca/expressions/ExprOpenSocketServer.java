@@ -40,6 +40,7 @@ public class ExprOpenSocketServer extends SimpleExpression<UDPEchoServer> {
             UDPEchoServer server = null;
             try {
                 final UDPEchoServer finalServer = server = new UDPEchoServer(port.intValue(), LoggerFactory.getLogger("Skript-UDP-Server"));
+                // TODO: 2023-10-10 change outside
                 server.registerHandler((inetSocketAddress, udpEchoSend, udpEchoResponse) -> {
                     DataReceiveEvent e = new DataReceiveEvent(finalServer, inetSocketAddress, udpEchoSend, udpEchoResponse);
                     Bukkit.getPluginManager().callEvent(e);
