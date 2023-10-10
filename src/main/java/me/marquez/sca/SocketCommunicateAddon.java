@@ -114,60 +114,6 @@ public class SocketCommunicateAddon extends JavaPlugin implements Listener {
         return serverName;
     }
 
-    public void connectPlayer(Player player, String server) {
-        if(Bukkit.isPrimaryThread()) {
-            Executors.newCachedThreadPool().submit(() -> connectPlayer(player, server));
-            return;
-        }
-
-        // TODO: 2023-10-09 pinging before connect server
-
-        ServerPreConnectEvent preConnectEvent = new ServerPreConnectEvent(player, getCurrentServerName(), server);
-        getServer().getPluginManager().callEvent(preConnectEvent);
-        if(preConnectEvent.isCancelled() || !preConnectEvent.getCancelReasons().isEmpty()) {
-            failConnect(player, server, preConnectEvent.getCancelReasons());
-            return;
-        }
-
-        ServerConnectingEvent connectingEvent = new ServerConnectingEvent(player, getCurrentServerName(), server);
-        getServer().getPluginManager().callEvent(connectingEvent);
-        if(connectingEvent.isCancelled()) {
-            failConnect(player, server, List.of("connecting event cancelled"));
-            return;
-        }
-        ByteArrayDataOutput output = ByteStreams.newDataOutput();
-        output.writeUTF("Connect");
-        output.writeUTF(server);
-        player.sendPluginMessage(this, "BungeeCord", output.toByteArray());
-
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        connectingPlayers.put(player, future);
-        final UUID uuid = player.getUniqueId();
-        future.whenCompleteAsync((unused, throwable) -> {
-            ServerPostConnectEvent postConnectEvent = new ServerPostConnectEvent(getServer().getOfflinePlayer(uuid), getCurrentServerName(), server);
-            getServer().getPluginManager().callEvent(postConnectEvent);
-        }).orTimeout(30*1000, TimeUnit.MILLISECONDS).exceptionally(throwable -> {
-            connectingPlayers.remove(player);
-            failConnect(player, server, List.of("BungeeCord request timeout"));
-            return null;
-        });
-    }
-
-    private final Map<Player, CompletableFuture<Void>> connectingPlayers = new HashMap<>();
-    @EventHandler
-    public void onQuit(PlayerQuitEvent e) {
-        Player player = e.getPlayer();
-        if(connectingPlayers.containsKey(player)) {
-            connectingPlayers.get(player).complete(null);
-            connectingPlayers.remove(player);
-        }else {
-            ServerDisconnectEvent event = new ServerDisconnectEvent(player);
-            Bukkit.getPluginManager().callEvent(event);
-        }
-    }
-
-
-
     public void failConnect(Player player, String server, List<String> failReasons) {
         ServerConnectFailEvent connectFailEvent = new ServerConnectFailEvent(player, getCurrentServerName(), server, failReasons);
         getServer().getPluginManager().callEvent(connectFailEvent);
