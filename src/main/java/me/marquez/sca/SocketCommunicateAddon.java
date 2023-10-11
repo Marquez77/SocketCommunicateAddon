@@ -44,11 +44,11 @@ public class SocketCommunicateAddon extends JavaPlugin implements Listener {
         instance = this;
 
         // TODO: 2023-10-10 whether on config
-        try {
-            loadServerName();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            loadServerName();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         registerSkriptAddons();
 
@@ -75,7 +75,7 @@ public class SocketCommunicateAddon extends JavaPlugin implements Listener {
 
         Skript.registerEffect(EffSendData.class, "[(1¦synchronously)] send data named %string% with %objects% to %strings% from %object% [and receive in %-objects% [or timeout %integer%]]");
         Skript.registerEffect(EffCloseSocketServer.class, "close socket server of %object%");
-        Skript.registerEffect(EffConnectServer.class, "connect server %players% to %string%");
+//        Skript.registerEffect(EffConnectServer.class, "connect server %players% to %string%");
         Skript.registerEffect(EffKickPlayerOnProxy.class, "kick %player% on proxy due to %string%");
         Skript.registerEffect(EffGetOfflinePlayer.class, "async set %object% to %string% parsing to offline player");
 
@@ -112,11 +112,6 @@ public class SocketCommunicateAddon extends JavaPlugin implements Listener {
 
     public String getCurrentServerName() {
         return serverName;
-    }
-
-    public void failConnect(Player player, String server, List<String> failReasons) {
-        ServerConnectFailEvent connectFailEvent = new ServerConnectFailEvent(player, getCurrentServerName(), server, failReasons);
-        getServer().getPluginManager().callEvent(connectFailEvent);
     }
 
 }

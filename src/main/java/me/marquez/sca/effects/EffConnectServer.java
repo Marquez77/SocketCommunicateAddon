@@ -16,11 +16,11 @@ public class EffConnectServer extends Effect {
 
     @Override
     protected void execute(Event event) {
-        Player[] players = this.player.getArray(event);
-        String server = this.server.getSingle(event);
-        for (Player p : players) {
-            SocketCommunicateAddon.getInstance().connectPlayer(p, server);
-        }
+//        Player[] players = this.player.getArray(event);
+//        String server = this.server.getSingle(event);
+//        for (Player p : players) {
+//            SocketCommunicateAddon.getInstance().connectPlayer(p, server);
+//        }
     }
 
     @Override
