@@ -39,7 +39,7 @@ public class EffSendData extends Delay {
     private boolean isLocal;
     private boolean isList;
 
-    private long timeout = 30*1000L;
+    private long timeout = 5*1000L;
 
     @Nullable
     private InetSocketAddress getAddress(String str) {
@@ -126,8 +126,10 @@ public class EffSendData extends Delay {
                 }).orTimeout(timeout, TimeUnit.MILLISECONDS)
                 .exceptionally(throwable -> {
                     if(localVars != null) Variables.setLocalVariables(event, localVars);
-                    Skript.error(throwable.getMessage());
-                    throw new RuntimeException(throwable);
+                    Skript.error("An error occurred during send data: " + send);
+//                    Skript.error(throwable.getMessage());
+//                    throw new RuntimeException(throwable);
+                    return null;
                 }).join();
     }
 
