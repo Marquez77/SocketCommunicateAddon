@@ -11,8 +11,8 @@ import me.marquez.sca.effects.*;
 import me.marquez.sca.events.*;
 import me.marquez.sca.expressions.*;
 import me.marquez.sca.placeholder.SkriptVariableExpansion;
-import me.marquez.socket.udp.UDPEchoServer;
-import me.marquez.socket.udp.entity.UDPEchoResponse;
+import me.marquez.socket.data.SocketServer;
+import me.marquez.socket.packet.entity.PacketReceive;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -102,10 +102,10 @@ public class SocketCommunicateAddon extends JavaPlugin implements Listener {
         }, 0);
 
 
-        Skript.registerExpression(ExprOpenSocketServer.class, UDPEchoServer.class, ExpressionType.SIMPLE, "open socket server with port %number%[ on debug %boolean%]");
+        Skript.registerExpression(ExprOpenSocketServer.class, SocketServer.class, ExpressionType.SIMPLE, "open socket server with port %number%[ on debug %boolean%]");
         Skript.registerExpression(ExprDataSender.class, String.class, ExpressionType.SIMPLE, "data sender");
-        Skript.registerExpression(ExprReceivedData.class, MinecraftEchoData.class, ExpressionType.SIMPLE, "received data");
-        Skript.registerExpression(ExprResponseData.class, UDPEchoResponse.class, ExpressionType.SIMPLE, "response data");
+        Skript.registerExpression(ExprReceivedData.class, PacketReceive.class, ExpressionType.SIMPLE, "received data");
+//        Skript.registerExpression(ExprResponseData.class, UDPEchoResponse.class, ExpressionType.SIMPLE, "response data");
         Skript.registerExpression(ExprOriginServer.class, String.class, ExpressionType.SIMPLE, "origin(-| )server");
         Skript.registerExpression(ExprTargetServer.class, String.class, ExpressionType.SIMPLE, "target(-| )server");
         Skript.registerExpression(ExprCancelReason.class, String.class, ExpressionType.SIMPLE, "cancel(-| )reason");

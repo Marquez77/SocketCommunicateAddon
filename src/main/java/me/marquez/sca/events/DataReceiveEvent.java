@@ -2,16 +2,12 @@ package me.marquez.sca.events;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import me.marquez.sca.MinecraftEchoData;
-import me.marquez.socket.udp.UDPEchoServer;
-import me.marquez.socket.udp.entity.UDPEchoResponse;
-import me.marquez.socket.udp.entity.UDPEchoSend;
+import me.marquez.socket.data.SocketServer;
+import me.marquez.socket.packet.entity.PacketReceive;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 @Getter
 public class DataReceiveEvent extends Event {
@@ -27,19 +23,16 @@ public class DataReceiveEvent extends Event {
     }
 
     @NonNull
-    private final UDPEchoServer server;
+    private final SocketServer server;
     @NonNull
-    private final InetSocketAddress sender;
+    private final SocketAddress sender;
     @NonNull
-    private final MinecraftEchoData data;
-    @NonNull
-    private final UDPEchoResponse response;
+    private final PacketReceive data;
 
-    public DataReceiveEvent(UDPEchoServer server, InetSocketAddress sender, UDPEchoSend data, UDPEchoResponse response) {
+    public DataReceiveEvent(SocketServer server, SocketAddress sender, PacketReceive data) {
         super(true);
         this.server = server;
         this.sender = sender;
-        this.data = MinecraftEchoData.of(data);
-        this.response = response;
+        this.data = data;
     }
 }

@@ -4,19 +4,18 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import me.marquez.sca.MinecraftEchoData;
 import me.marquez.sca.events.DataReceiveEvent;
-import me.marquez.socket.udp.entity.UDPEchoSend;
+import me.marquez.socket.packet.entity.PacketReceive;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-public class ExprReceivedData extends SimpleExpression<MinecraftEchoData> {
+public class ExprReceivedData extends SimpleExpression<PacketReceive> {
     @Override
-    protected @Nullable MinecraftEchoData[] get(Event event) {
+    protected @Nullable PacketReceive[] get(Event event) {
         if(event instanceof DataReceiveEvent e) {
-            MinecraftEchoData data = e.getData().clone();
-            data.nextString();
-            return new MinecraftEchoData[] { data };
+            PacketReceive data = e.getData().clonePacket();
+//            data.nextString();
+            return new PacketReceive[] { data };
         }
         return null;
     }
@@ -27,8 +26,8 @@ public class ExprReceivedData extends SimpleExpression<MinecraftEchoData> {
     }
 
     @Override
-    public Class<? extends MinecraftEchoData> getReturnType() {
-        return MinecraftEchoData.class;
+    public Class<? extends PacketReceive> getReturnType() {
+        return PacketReceive.class;
     }
 
     @Override

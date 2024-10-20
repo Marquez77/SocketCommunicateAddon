@@ -5,18 +5,15 @@ import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import me.marquez.sca.CustomDataAppender;
-import me.marquez.sca.MinecraftEchoData;
 import me.marquez.sca.SocketCommunicateAddon;
-import me.marquez.socket.udp.UDPEchoServer;
-import me.marquez.socket.udp.entity.UDPEchoSend;
+import me.marquez.socket.SocketAPI;
+import me.marquez.socket.data.SocketServer;
+import me.marquez.socket.packet.entity.PacketSend;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
-import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,7 +29,7 @@ public class EffSendData extends Delay {
     private Expression<String> name;
     private Expression<Object> data;
     private Expression<String> target;
-    private Expression<UDPEchoServer> server;
+    private Expression<SocketServer> server;
 
     private boolean isSync;
     private VariableString var;
@@ -69,18 +66,14 @@ public class EffSendData extends Delay {
     protected void execute(Event event) {
         String name = this.name.getSingle(event);
         Object[] data = this.data.getArray(event);
-        UDPEchoServer server = this.server.getSingle(event);
+        SocketServer server = this.server.getSingle(event);
         if(server == null) {
             Skript.error("UDP socket server is null!");
             return;
         }
-        UDPEchoSend send = new UDPEchoSend(name);
+        PacketSend send = SocketAPI.createPacketSend(name);
         for (Object d : data) {
-            if(d instanceof ItemStack item) {
-                CustomDataAppender.INSTANCE.appendItem(send, item);
-            }else {
-                send.append(d);
-            }
+            send.append(d);
         }
         String[] targetArray = this.target.getArray(event);
         if(targetArray.length == 1 && var != null) {
@@ -114,14 +107,14 @@ public class EffSendData extends Delay {
         }
     }
 
-    private void executeSend(UDPEchoServer server, String address, UDPEchoSend send, Event event, Object localVars) {
+    private void executeSend(SocketServer server, String address, PacketSend send, Event event, Object localVars) {
         var socketAddress = getAddress(address);
         if(socketAddress == null) return;
-        server.sendDataAndReceive(socketAddress, send, true)
-                .whenComplete((udpEchoResponse, throwable) -> {
+        server.sendDataFuture(socketAddress, send)
+                .whenComplete((result, throwable) -> {
                     if (throwable == null) {
                         if(localVars != null) Variables.setLocalVariables(event, localVars);
-                        Variables.setVariable(var.toString(event).toLowerCase(Locale.ENGLISH), MinecraftEchoData.of(udpEchoResponse), event, isLocal);
+//4                        Variables.setVariable(var.toString(event).toLowerCase(Locale.ENGLISH), MinecraftEchoData.of(udpEchoResponse), event, isLocal);
                     }
                 }).orTimeout(timeout, TimeUnit.MILLISECONDS)
                 .exceptionally(throwable -> {
@@ -144,7 +137,7 @@ public class EffSendData extends Delay {
             name = (Expression<String>) expressions[0];
             data = (Expression<Object>) expressions[1];
             target = (Expression<String>) expressions[2];
-            server = (Expression<UDPEchoServer>) expressions[3];
+            server = (Expression<SocketServer>) expressions[3];
             isSync = parseResult.mark == 1;
             if (expressions.length > 4 && expressions[4] instanceof Variable<?> variable) {
                 var = variable.getName();
