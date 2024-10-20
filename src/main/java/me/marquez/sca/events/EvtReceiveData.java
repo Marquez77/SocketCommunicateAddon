@@ -21,7 +21,7 @@ public class EvtReceiveData extends SimpleEvent {
     public boolean check(Event event) {
         String name = this.name.getSingle();
         if(event instanceof DataReceiveEvent e) {
-            if(name.equalsIgnoreCase(e.getData().clone().nextString())) {
+            if(name.equalsIgnoreCase(String.join(" ", e.getData().getIdentifiers()))) {
                 return true;
             }
         }

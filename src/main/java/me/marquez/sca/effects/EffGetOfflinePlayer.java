@@ -4,7 +4,6 @@ import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import me.marquez.sca.MinecraftEchoData;
 import me.marquez.sca.SocketCommunicateAddon;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

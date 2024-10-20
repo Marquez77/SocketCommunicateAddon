@@ -3,20 +3,25 @@ package me.marquez.sca.effects;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
-import me.marquez.socket.udp.UDPEchoServer;
+import me.marquez.socket.data.SocketServer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+
 public class EffCloseSocketServer extends Effect {
 
-    private Expression<UDPEchoServer> server;
+    private Expression<SocketServer> server;
 
     @Override
     protected void execute(Event event) {
-        UDPEchoServer server = this.server.getSingle(event);
-        server.close();
+        SocketServer server = this.server.getSingle(event);
+        try {
+            server.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -26,7 +31,7 @@ public class EffCloseSocketServer extends Effect {
 
     @Override
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        this.server = (Expression<UDPEchoServer>)expressions[0];
+        this.server = (Expression<SocketServer>)expressions[0];
         return true;
     }
 }

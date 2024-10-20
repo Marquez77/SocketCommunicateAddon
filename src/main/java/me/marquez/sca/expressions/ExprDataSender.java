@@ -13,7 +13,7 @@ public class ExprDataSender extends SimpleExpression<String> {
     @Override
     protected @Nullable String[] get(Event event) {
         if(event instanceof DataReceiveEvent e) {
-            return new String[] { e.getSender().getHostString() + ":" + e.getSender().getPort() };
+            return new String[] { e.getSender().toString() };
         }
         return null;
     }
