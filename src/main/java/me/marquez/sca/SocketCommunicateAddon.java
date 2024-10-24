@@ -11,6 +11,7 @@ import me.marquez.sca.effects.*;
 import me.marquez.sca.events.*;
 import me.marquez.sca.expressions.*;
 import me.marquez.sca.placeholder.SkriptVariableExpansion;
+import me.marquez.socket.SocketManager;
 import me.marquez.socket.data.SocketServer;
 import me.marquez.socket.packet.entity.PacketReceive;
 import org.bukkit.Bukkit;
@@ -52,6 +53,8 @@ public class SocketCommunicateAddon extends JavaPlugin implements Listener {
         if(getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new SkriptVariableExpansion().register();
         }
+
+        SocketManager.initialize();
 
         registerSkriptAddons();
 

@@ -51,7 +51,7 @@
         </dependency>
         <dependency>
             <groupId>me.marquez</groupId>
-            <artifactId>socket-communication-api</artifactId>
+            <artifactId>socket-communication-core</artifactId>
             <version>1.0.1</version>
             <scope>compile</scope>
         </dependency>

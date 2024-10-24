@@ -68,7 +68,7 @@ public class EffSendData extends Delay {
         Object[] data = this.data.getArray(event);
         SocketServer server = this.server.getSingle(event);
         if(server == null) {
-            Skript.error("UDP socket server is null!");
+            Skript.error("Socket server is null!");
             return;
         }
         PacketSend send = SocketAPI.createPacketSend(name);
