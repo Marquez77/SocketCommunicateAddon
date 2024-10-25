@@ -51,9 +51,9 @@
         </dependency>
         <dependency>
             <groupId>me.marquez</groupId>
-            <artifactId>socket-communication-core</artifactId>
+            <artifactId>socket-communication-api</artifactId>
             <version>1.0.1</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>

@@ -24,7 +24,7 @@ send data named %string% with %objects% to %strings% from %object% [and receive 
  */
 public class EffSendData extends Delay {
 
-    private static final ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private static final ExecutorService threadPool = Executors.newFixedThreadPool(100);
 
     private Expression<String> name;
     private Expression<Object> data;
@@ -101,7 +101,7 @@ public class EffSendData extends Delay {
             for (String target : targetArray) {
                 var socketAddress = getAddress(target);
                 if(socketAddress == null) continue;
-                server.sendData(socketAddress, send);
+                server.sendDataFuture(socketAddress, send);
             }
             continueScriptExecution(event);
         }

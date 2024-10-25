@@ -11,7 +11,6 @@ import me.marquez.sca.effects.*;
 import me.marquez.sca.events.*;
 import me.marquez.sca.expressions.*;
 import me.marquez.sca.placeholder.SkriptVariableExpansion;
-import me.marquez.socket.SocketManager;
 import me.marquez.socket.data.SocketServer;
 import me.marquez.socket.packet.entity.PacketReceive;
 import org.bukkit.Bukkit;
@@ -53,8 +52,6 @@ public class SocketCommunicateAddon extends JavaPlugin implements Listener {
         if(getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new SkriptVariableExpansion().register();
         }
-
-        SocketManager.initialize();
 
         registerSkriptAddons();
 
@@ -105,7 +102,7 @@ public class SocketCommunicateAddon extends JavaPlugin implements Listener {
         }, 0);
 
 
-        Skript.registerExpression(ExprOpenSocketServer.class, SocketServer.class, ExpressionType.SIMPLE, "open socket server with port %number%[ on debug %boolean%]");
+        Skript.registerExpression(ExprOpenSocketServer.class, SocketServer.class, ExpressionType.SIMPLE, "open socket server with ip %string% with port %number%[ on debug %boolean%]");
         Skript.registerExpression(ExprDataSender.class, String.class, ExpressionType.SIMPLE, "data sender");
         Skript.registerExpression(ExprReceivedData.class, PacketReceive.class, ExpressionType.SIMPLE, "received data");
 //        Skript.registerExpression(ExprResponseData.class, UDPEchoResponse.class, ExpressionType.SIMPLE, "response data");

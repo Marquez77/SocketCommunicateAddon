@@ -19,6 +19,7 @@ import java.io.IOException;
 
 public class ExprOpenSocketServer extends SimpleExpression<SocketServer> {
 
+    private Expression<String> host;
     private Expression<Number> port;
     private Expression<Boolean> debug;
 
@@ -29,21 +30,23 @@ public class ExprOpenSocketServer extends SimpleExpression<SocketServer> {
 
     @Override
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        this.port = (Expression<Number>) expressions[0];
+        this.host = (Expression<String>) expressions[0];
+        this.port = (Expression<Number>) expressions[1];
         if(expressions.length > 1) {
-            this.debug = (Expression<Boolean>) expressions[1];
+            this.debug = (Expression<Boolean>) expressions[2];
         }
         return true;
     }
 
     @Override
     protected @Nullable SocketServer[] get(Event event) {
+        String host = this.host.getSingle(event);
         Number port = this.port.getSingle(event);
         boolean debug = this.debug != null ? this.debug.getSingle(event) : false;
         if (port != null) {
             SocketServer server = null;
             try {
-                final SocketServer finalServer = server = SocketAPI.getFactory(ServerProtocol.TCP).createOrGet(port.intValue());
+                final SocketServer finalServer = server = SocketAPI.getFactory(ServerProtocol.TCP).createOrGet(host, port.intValue(), debug, 100, 10);
                 server.registerListener(new PacketListener() {
                     @PacketHandler
                     public void onPacketReceive(PacketMessage packet) {
@@ -51,7 +54,7 @@ public class ExprOpenSocketServer extends SimpleExpression<SocketServer> {
                         Bukkit.getPluginManager().callEvent(e);
                     }
                 });
-                server.setDebug(debug);
+                server.open();
             } catch (IOException e) {
                 e.printStackTrace();
             }
