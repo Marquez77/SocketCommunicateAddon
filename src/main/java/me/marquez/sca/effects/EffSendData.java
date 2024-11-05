@@ -5,6 +5,7 @@ import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
+import com.btk5h.skriptmirror.ObjectWrapper;
 import me.marquez.sca.SocketCommunicateAddon;
 import me.marquez.socket.SocketAPI;
 import me.marquez.socket.data.SocketServer;
@@ -27,7 +28,7 @@ public class EffSendData extends Delay {
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(100);
 
     private Expression<String> name;
-    private Expression<Object> data;
+    private Expression<PacketSend> data;
     private Expression<String> target;
     private Expression<SocketServer> server;
 
@@ -65,16 +66,15 @@ public class EffSendData extends Delay {
     @Override
     protected void execute(Event event) {
         String name = this.name.getSingle(event);
-        Object[] data = this.data.getArray(event);
+        PacketSend send = this.data.getSingle(event);
         SocketServer server = this.server.getSingle(event);
+        if(name == null || send == null)
+            return;
         if(server == null) {
             Skript.error("Socket server is null!");
             return;
         }
-        PacketSend send = SocketAPI.createPacketSend(name);
-        for (Object d : data) {
-            send.append(d);
-        }
+        send.setIdentifier("Skript", name);
         String[] targetArray = this.target.getArray(event);
         if(targetArray.length == 1 && var != null) {
             boolean isMainThread = Bukkit.isPrimaryThread();
@@ -109,23 +109,10 @@ public class EffSendData extends Delay {
 
     private void executeSend(SocketServer server, String address, PacketSend send, Event event, Object localVars) {
         var socketAddress = getAddress(address);
-        if(socketAddress == null) return;
-        server.sendDataFuture(socketAddress, send)
-                .whenComplete((result, throwable) -> {
-                    if (throwable == null) {
-                        if(localVars != null) Variables.setLocalVariables(event, localVars);
-//4                        Variables.setVariable(var.toString(event).toLowerCase(Locale.ENGLISH), MinecraftEchoData.of(udpEchoResponse), event, isLocal);
-                    }
-                }).orTimeout(timeout, TimeUnit.MILLISECONDS)
-                .exceptionally(throwable -> {
-                    if(localVars != null) Variables.setLocalVariables(event, localVars);
-                    Skript.error("An error occurred during send data: " + send);
-//                    Skript.error(throwable.getMessage());
-//                    throw new RuntimeException(throwable);
-                    return null;
-                }).join();
+        if(socketAddress == null || socketAddress.equals(server.getHost()))
+            return;
+        server.sendDataFuture(socketAddress, send);
     }
-
     @Override
     public String toString(@Nullable Event event, boolean b) {
         return this.getClass().getName();
@@ -135,7 +122,7 @@ public class EffSendData extends Delay {
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
         try {
             name = (Expression<String>) expressions[0];
-            data = (Expression<Object>) expressions[1];
+            data = (Expression<PacketSend>) expressions[1];
             target = (Expression<String>) expressions[2];
             server = (Expression<SocketServer>) expressions[3];
             isSync = parseResult.mark == 1;

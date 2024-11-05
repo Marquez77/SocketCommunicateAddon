@@ -48,7 +48,7 @@ public class ExprOpenSocketServer extends SimpleExpression<SocketServer> {
             try {
                 final SocketServer finalServer = server = SocketAPI.getFactory(ServerProtocol.TCP).createOrGet(host, port.intValue(), debug, 100, 10);
                 server.registerListener(new PacketListener() {
-                    @PacketHandler
+                    @PacketHandler(identifiers = {"Skript", "*"})
                     public void onPacketReceive(PacketMessage packet) {
                         DataReceiveEvent e = new DataReceiveEvent(finalServer, packet.origin_server_address(), packet.received_packet());
                         Bukkit.getPluginManager().callEvent(e);

@@ -7,6 +7,8 @@ import ch.njol.skript.lang.util.SimpleEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+
 public class EvtReceiveData extends SimpleEvent {
 
     private Literal<String> name;
@@ -21,7 +23,7 @@ public class EvtReceiveData extends SimpleEvent {
     public boolean check(Event event) {
         String name = this.name.getSingle();
         if(event instanceof DataReceiveEvent e) {
-            if(name.equalsIgnoreCase(String.join(" ", e.getData().getIdentifiers()))) {
+            if(name.equalsIgnoreCase(String.join(" ", Arrays.stream(e.getData().getIdentifiers()).skip(1).toList()))) {
                 return true;
             }
         }

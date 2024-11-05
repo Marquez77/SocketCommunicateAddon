@@ -67,6 +67,12 @@
             <version>2.11.5</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.btk5h.skript-mirror</groupId>
+            <artifactId>skript-reflect</artifactId>
+            <version>2.3</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -13,6 +13,7 @@ import me.marquez.sca.expressions.*;
 import me.marquez.sca.placeholder.SkriptVariableExpansion;
 import me.marquez.socket.data.SocketServer;
 import me.marquez.socket.packet.entity.PacketReceive;
+import me.marquez.socket.packet.entity.PacketSend;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -76,7 +77,7 @@ public class SocketCommunicateAddon extends JavaPlugin implements Listener {
     private void registerSkriptAddons() {
         Skript.registerAddon(this);
 
-        Skript.registerEffect(EffSendData.class, "[(1¦synchronously)] send data named %string% with %objects% to %strings% from %object% [and receive in %-objects% [or timeout %integer%]]");
+        Skript.registerEffect(EffSendData.class, "[(1¦synchronously)] send packet named %string% with %object% to %strings% from %object% [and receive in %-objects% [or timeout %integer%]]");
         Skript.registerEffect(EffCloseSocketServer.class, "close socket server of %object%");
         Skript.registerEffect(EffConnectServer.class, "connect server %players% to %string%");
         Skript.registerEffect(EffKickPlayerOnProxy.class, "kick %player% on proxy due to %string%");
@@ -102,6 +103,7 @@ public class SocketCommunicateAddon extends JavaPlugin implements Listener {
         }, 0);
 
 
+        Skript.registerExpression(ExprNewPacketSend.class, PacketSend.class, ExpressionType.SIMPLE, "new send[(-| )]packet");
         Skript.registerExpression(ExprOpenSocketServer.class, SocketServer.class, ExpressionType.SIMPLE, "open socket server with ip %string% with port %number%[ on debug %boolean%]");
         Skript.registerExpression(ExprDataSender.class, String.class, ExpressionType.SIMPLE, "data sender");
         Skript.registerExpression(ExprReceivedData.class, PacketReceive.class, ExpressionType.SIMPLE, "received data");
